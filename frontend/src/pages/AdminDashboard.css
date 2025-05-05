@@ -1,0 +1,338 @@
+/* ===== GENERAL WRAPPER & TYPOGRAPHY ===== */
+.admin-dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+  background: linear-gradient(145deg, #fff7e2, #ffe9c9);
+  font-family: 'Poppins', sans-serif;
+}
+
+.admin-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 900px;
+  width: 100%;
+}
+
+/* ===== HEADINGS ===== */
+.admin-heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #a76d27;
+  margin-bottom: 30px;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px #fff3d6;
+  text-align: center;
+}
+
+/* ===== TABS / BUTTONS ===== */
+.tab-buttons {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.tab-buttons button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #a76d27;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #a76d27;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 10px rgba(167, 109, 39, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+.tab-buttons button:hover {
+  background-color: #fff4e0;
+  box-shadow: 0 6px 12px rgba(167, 109, 39, 0.2);
+  transform: translateY(-2px);
+}
+
+.tab-buttons .active {
+  background-color: #a76d27;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(167, 109, 39, 0.3);
+}
+
+/* ===== FORM CARD ===== */
+.admin-card {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(180, 136, 77, 0.15);
+  width: 100%;
+  max-width: 550px;
+}
+
+/* ===== FORM STYLES ===== */
+.admin-form,
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-form input,
+.admin-form textarea,
+.edit-form input,
+.edit-form textarea {
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #deb887;
+  border-radius: 8px;
+  background: #fffdfa;
+  transition: 0.2s ease;
+}
+
+.admin-form input:focus,
+.admin-form textarea:focus,
+.edit-form input:focus,
+.edit-form textarea:focus {
+  outline: none;
+  border-color: #b4884d;
+  box-shadow: 0 0 5px rgba(180, 136, 77, 0.3);
+}
+
+.admin-form textarea,
+.edit-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.admin-form button,
+.edit-form button {
+  background-color: #b4884d;
+  color: #fff;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.2s;
+}
+
+.admin-form button:hover,
+.edit-form button:hover {
+  background-color: #9c6e3c;
+  box-shadow: 0 6px 12px rgba(180, 136, 77, 0.2);
+}
+
+/* ===== IMAGE PREVIEW ===== */
+.admin-img-preview {
+  width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: -10px;
+}
+
+/* ===== PRODUCT LIST & ITEM ===== */
+.product-list {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+  max-width: 800px;
+}
+
+.product-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fffaf2;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(180, 136, 77, 0.08);
+  position: relative;
+}
+
+.product-item img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.product-item h4 {
+  margin: 0;
+  color: #4b3e2d;
+  font-size: 1.1rem;
+}
+
+.product-item p {
+  margin: 4px 0;
+  color: #5f4c33;
+  font-size: 0.95rem;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-left: 5px;
+  transition: 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: #d9363e;
+}
+
+.edit-btn {
+  background-color: #ffa502;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.edit-btn:hover {
+  background-color: #e0a800;
+}
+
+/* ===== BACK TO HOME ===== */
+.back-home-wrapper {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.back-to-home-btn {
+  background-color: transparent;
+  color: #b4884d;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.back-to-home-btn:hover {
+  color: #a0763b;
+  text-decoration: underline;
+}
+
+/* ===== OPTIONAL GLASS CARD FOR BUTTONS ===== */
+.button-card {
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+}
+/* ===== EDIT FORM INSIDE PRODUCT ITEM ===== */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+  background-color: #fffdf6;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #ffe1b6;
+  box-shadow: 0 4px 10px rgba(180, 136, 77, 0.05);
+}
+
+/* Inputs inside Edit Form */
+.edit-form input,
+.edit-form textarea {
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #deb887;
+  border-radius: 8px;
+  background-color: #fffdfa;
+  transition: 0.2s ease;
+}
+
+.edit-form input:focus,
+.edit-form textarea:focus {
+  outline: none;
+  border-color: #b4884d;
+  box-shadow: 0 0 5px rgba(180, 136, 77, 0.3);
+}
+
+.edit-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Submit and Cancel Buttons */
+.edit-form .form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-form .save-btn {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-form .save-btn:hover {
+  background-color: #27ae60;
+}
+
+.edit-form .cancel-btn {
+  background-color: #bdc3c7;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-form .cancel-btn:hover {
+  background-color: #a5acb1;
+}
+/* ===== STANDALONE EDIT BUTTON STYLE ===== */
+.edit-btn {
+  background-color: #ffa502;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 8px rgba(255, 165, 2, 0.15);
+}
+
+.edit-btn:hover {
+  background-color: #e0a800;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(255, 165, 2, 0.25);
+}
