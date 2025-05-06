@@ -69,12 +69,28 @@
 
 /* ===== FORM CARD ===== */
 .admin-card {
-  background-color: #ffffff;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(180, 136, 77, 0.15);
-  width: 100%;
-  max-width: 550px;
+  background: #fffefb;
+  padding: 36px 32px 28px 32px;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px rgba(180, 136, 77, 0.18);
+  margin-top: 18px;
+  transition: box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-card:hover {
+  box-shadow: 0 12px 40px rgba(180, 136, 77, 0.22);
+}
+
+.admin-card h3 {
+  color: #b4884d;
+  font-size: 1.35rem;
+  margin-bottom: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-align: center;
 }
 
 /* ===== FORM STYLES ===== */
@@ -209,11 +225,14 @@
   font-weight: 500;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 8px rgba(255, 165, 2, 0.15);
 }
 
 .edit-btn:hover {
   background-color: #e0a800;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(255, 165, 2, 0.25);
 }
 
 /* ===== BACK TO HOME ===== */
@@ -244,6 +263,7 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(10px);
 }
+
 /* ===== EDIT FORM INSIDE PRODUCT ITEM ===== */
 .edit-form {
   display: flex;
@@ -258,30 +278,11 @@
   box-shadow: 0 4px 10px rgba(180, 136, 77, 0.05);
 }
 
-/* Inputs inside Edit Form */
-.edit-form input,
-.edit-form textarea {
-  padding: 10px 12px;
-  font-size: 15px;
-  border: 1px solid #deb887;
-  border-radius: 8px;
-  background-color: #fffdfa;
-  transition: 0.2s ease;
-}
-
-.edit-form input:focus,
-.edit-form textarea:focus {
-  outline: none;
-  border-color: #b4884d;
-  box-shadow: 0 0 5px rgba(180, 136, 77, 0.3);
-}
-
 .edit-form textarea {
   resize: vertical;
   min-height: 80px;
 }
 
-/* Submit and Cancel Buttons */
 .edit-form .form-actions {
   display: flex;
   gap: 10px;
@@ -317,22 +318,232 @@
 .edit-form .cancel-btn:hover {
   background-color: #a5acb1;
 }
-/* ===== STANDALONE EDIT BUTTON STYLE ===== */
-.edit-btn {
-  background-color: #ffa502;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-weight: 500;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 8px rgba(255, 165, 2, 0.15);
+
+/* ===== CATEGORY MANAGEMENT ===== */
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 1.2rem;
+  padding: 0;
+  width: 100%;
+  align-items: flex-start;
 }
 
-.edit-btn:hover {
-  background-color: #e0a800;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(255, 165, 2, 0.25);
+.category-list li {
+  display: inline-flex;
+  align-items: center;
+  background: #fff7e2;
+  border: 1.5px solid #ffe1b6;
+  border-radius: 22px;
+  padding: 8px 18px;
+  font-size: 1.08rem;
+  color: #5c3a1e;
+  box-shadow: 0 2px 8px rgba(180, 136, 77, 0.07);
+  font-weight: 500;
+  gap: 12px;
+}
+
+.category-list li:hover {
+  background: #fff2db;
+  box-shadow: 0 4px 16px rgba(180, 136, 77, 0.13);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.category-list button {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+.category-list button:hover {
+  background: #ffeaea;
+  color: #c0392b;
+  transform: scale(1.2) rotate(-10deg);
+}
+
+.add-category-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  background: #fff7e2;
+  border: 1.5px solid #ffe1b6;
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 8px rgba(180, 136, 77, 0.07);
+  width: 100%;
+  max-width: 350px;
+  align-items: center;
+}
+
+.add-category-form input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #deb887;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fffdfa;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.add-category-form input:focus {
+  border-color: #b4884d;
+  outline: none;
+  box-shadow: 0 0 5px rgba(180, 136, 77, 0.13);
+}
+
+.add-category-form button {
+  background: #b4884d;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(180, 136, 77, 0.09);
+}
+
+.add-category-form button:hover {
+  background: #a0763b;
+  box-shadow: 0 4px 12px rgba(180, 136, 77, 0.13);
+}
+
+/* ===== CATEGORY DROPDOWN IN PRODUCT FORM ===== */
+.admin-form select,
+.edit-form select {
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #deb887;
+  border-radius: 8px;
+  background: #fffdfa;
+  color: #5c3a1e;
+  margin-bottom: 8px;
+  transition: border 0.2s;
+}
+
+.admin-form select:focus,
+.edit-form select:focus {
+  border-color: #b4884d;
+  outline: none;
+}
+
+/* ===== INLINE ADD CATEGORY IN PRODUCT FORM ===== */
+.inline-add-category {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 16px 0;
+  align-items: center;
+}
+
+.inline-add-category input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #deb887;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fffdfa;
+}
+
+.inline-add-category button {
+  background: #b4884d;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.inline-add-category button:hover {
+  background: #a0763b;
+  box-shadow: 0 4px 10px rgba(180, 136, 77, 0.13);
+}
+
+/* ===== CATEGORY MANAGEMENT CARD ===== */
+.category-card {
+  background: #fffefb;
+  border: 2px solid #ffe1b6;
+  box-shadow: 0 8px 32px rgba(180, 136, 77, 0.18);
+  border-radius: 22px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+}
+
+/* ===== ORDER DETAILS CARD ===== */
+.order-card {
+  background: #f8f7f3;
+  border: 2px solid #e6d3b3;
+  box-shadow: 0 8px 32px rgba(180, 136, 77, 0.13);
+  border-radius: 22px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  min-width: 320px;
+}
+
+.order-card h3 {
+  color: #a76d27;
+  font-size: 1.25rem;
+  margin-bottom: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.order-table-wrapper {
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(180, 136, 77, 0.07);
+}
+
+.order-table th, .order-table td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.98rem;
+}
+
+.order-table th {
+  background: #fff7e2;
+  color: #b4884d;
+  font-weight: 700;
+  border-bottom: 2px solid #ffe1b6;
+}
+
+.order-table tr {
+  transition: background 0.2s;
+}
+
+.order-table tr:hover {
+  background: #fff2db;
+}
+
+.order-table td {
+  border-bottom: 1px solid #f3e9d2;
+  color: #5c3a1e;
+}
+
+.order-loading, .order-error, .order-empty {
+  text-align: center;
+  color: #b4884d;
+  font-size: 1.08rem;
+  margin: 18px 0;
 }

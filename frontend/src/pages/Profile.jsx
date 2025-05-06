@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaUser, FaShoppingCart, FaCheckCircle, FaClock, FaRupeeSign, FaEdit } from 'react-icons/fa';
+import { FaUser, FaShoppingCart, FaCheckCircle, FaClock, FaRupeeSign, FaEdit, FaSearch, FaMapMarkerAlt } from 'react-icons/fa';
 import './Profile.css';
 
 const Profile = () => {
@@ -8,9 +8,14 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
-  const [editData, setEditData] = useState({ name: '', email: '', password: '' });
+  const [editData, setEditData] = useState({ name: '', email: '', password: '', location: '' });
   const [editError, setEditError] = useState('');
   const [editSuccess, setEditSuccess] = useState('');
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [pincode, setPincode] = useState('');
+  const [pinSuggestions, setPinSuggestions] = useState([]);
+  const [loadingPin, setLoadingPin] = useState(false);
+  const [address, setAddress] = useState('');
 
   console.log("Profile component loaded");
 
@@ -27,6 +32,9 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(response.data);
+        if (response.data && response.data.user && response.data.user.location) {
+          setAddress(response.data.user.location);
+        }
       } catch (err) {
         setError('Failed to load profile. Please make sure you are logged in and the backend is running.');
       } finally {
@@ -36,8 +44,39 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
+  useEffect(() => {
+    if (pincode.length !== 6 || isNaN(pincode)) {
+      setPinSuggestions([]);
+      return;
+    }
+    setLoadingPin(true);
+    fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+          setPinSuggestions(data[0].PostOffice.map(po => ({
+            label: `${po.Name}, ${po.District}, ${po.State} (${po.Pincode})`,
+            value: `${po.Name}, ${po.District}, ${po.State} (${po.Pincode})`
+          })));
+        } else {
+          setPinSuggestions([]);
+        }
+        setLoadingPin(false);
+      })
+      .catch(() => {
+        setPinSuggestions([]);
+        setLoadingPin(false);
+      });
+  }, [pincode]);
+
+  const handleSelectPinSuggestion = (suggestion) => {
+    setPincode(suggestion.value);
+    setAddress(suggestion.value);
+    setPinSuggestions([]);
+  };
+
   const openEditModal = () => {
-    setEditData({ name: profile.user.name, email: profile.user.email, password: '' });
+    setEditData({ name: profile.user.name, email: profile.user.email, password: '', location: profile.user.location || '' });
     setEditError('');
     setEditSuccess('');
     setShowEdit(true);
@@ -55,21 +94,46 @@ const Profile = () => {
       const token = localStorage.getItem('token');
       await axios.put(
         'http://localhost:5000/api/users/profile',
-        { name: editData.name, email: editData.email, password: editData.password },
+        { name: editData.name, email: editData.email, password: editData.password, location: address },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setEditSuccess('Profile updated successfully!');
       setProfile((prev) => ({
         ...prev,
-        user: { ...prev.user, name: editData.name, email: editData.email }
+        user: { ...prev.user, name: editData.name, email: editData.email, location: address }
       }));
       localStorage.setItem(
         'user',
-        JSON.stringify({ ...JSON.parse(localStorage.getItem('user')), name: editData.name, email: editData.email })
+        JSON.stringify({ ...JSON.parse(localStorage.getItem('user')), name: editData.name, email: editData.email, location: address })
       );
       setShowEdit(false);
     } catch (err) {
       setEditError('Failed to update profile.');
+    }
+  };
+
+  const handleAddressSave = async () => {
+    setEditError('');
+    setEditSuccess('');
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        'http://localhost:5000/api/users/profile',
+        { location: address },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setEditSuccess('Address updated successfully!');
+      setProfile((prev) => ({
+        ...prev,
+        user: { ...prev.user, location: address }
+      }));
+      localStorage.setItem(
+        'user',
+        JSON.stringify({ ...JSON.parse(localStorage.getItem('user')), location: address })
+      );
+      setShowAddressModal(false);
+    } catch (err) {
+      setEditError('Failed to update address.');
     }
   };
 
@@ -87,6 +151,7 @@ const Profile = () => {
           <h1>{profile.user.name}</h1>
           <p>{profile.user.email}</p>
           <p>Member since {new Date(profile.user.joinedDate).toLocaleDateString()}</p>
+          <p><FaMapMarkerAlt style={{marginRight: 6}} />{profile.user.location || 'No address set'}</p>
         </div>
         <button className="edit-btn" onClick={openEditModal} title="Edit Profile">
           <FaEdit /> Edit Profile
@@ -167,6 +232,11 @@ const Profile = () => {
                 New Password:
                 <input type="password" name="password" value={editData.password} onChange={handleEditChange} placeholder="Leave blank to keep current" />
               </label>
+              <label>
+                Address:
+                <input type="text" name="location" value={address} readOnly style={{background:'#f9f9f9', cursor:'pointer'}} onClick={()=>setShowAddressModal(true)} placeholder="Click to set address" />
+                <button type="button" className="edit-btn" style={{marginTop:8}} onClick={()=>setShowAddressModal(true)}>Edit Address</button>
+              </label>
               {editError && <div className="edit-error">{editError}</div>}
               {editSuccess && <div className="edit-success">{editSuccess}</div>}
               <div className="modal-actions">
@@ -174,6 +244,44 @@ const Profile = () => {
                 <button type="button" className="cancel-btn" onClick={() => setShowEdit(false)}>Cancel</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {showAddressModal && (
+        <div className="location-modal-overlay" onClick={() => setShowAddressModal(false)}>
+          <div className="location-modal" onClick={e => e.stopPropagation()}>
+            <h3>Update Your Address</h3>
+            <div className="location-search-input-container">
+              <FaSearch className="location-search-icon" />
+              <input
+                type="text"
+                placeholder="Enter 6-digit pincode..."
+                className="location-search-input"
+                value={pincode}
+                onChange={e => setPincode(e.target.value.replace(/[^0-9]/g, ''))}
+                maxLength={6}
+                autoFocus
+              />
+            </div>
+            <div>
+              {loadingPin && <div>Loading...</div>}
+              {pinSuggestions.map(suggestion => (
+                <div
+                  key={suggestion.value}
+                  className="suggestion-item"
+                  onClick={() => handleSelectPinSuggestion(suggestion)}
+                >
+                  {suggestion.label}
+                </div>
+              ))}
+              {!loadingPin && pincode.length === 6 && pinSuggestions.length === 0 && (
+                <div className="suggestion-item">No results found</div>
+              )}
+            </div>
+            <div className="location-modal-buttons">
+              <button onClick={handleAddressSave} className="save-btn">Save Address</button>
+              <button onClick={() => setShowAddressModal(false)} className="cancel-btn">Cancel</button>
+            </div>
           </div>
         </div>
       )}

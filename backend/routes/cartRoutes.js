@@ -6,11 +6,11 @@ const {
   removeFromCart,
   updateQuantity
 } = require('../controllers/cartController');
-const authMiddleware = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
-router.post('/add', authMiddleware, addToCart);
-router.get('/', authMiddleware, getCart);
-router.post('/remove', authMiddleware, removeFromCart);
-router.post('/update', authMiddleware, updateQuantity); // 👈 New route
+router.post('/add', protect, addToCart);
+router.get('/', protect, getCart);
+router.post('/remove', protect, removeFromCart);
+router.post('/update', protect, updateQuantity);
 
 module.exports = router;

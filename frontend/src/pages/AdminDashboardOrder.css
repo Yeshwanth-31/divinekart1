@@ -1,0 +1,142 @@
+body.modal-open {
+    overflow: hidden;
+  }
+  
+  .dashboard-title {
+    text-align: center;
+    font-size: 2rem;
+    color: #b4884d;
+    margin: 2rem 0 1rem;
+  }
+  
+  /* Table Styling */
+  .admin-order-table {
+    width: 90%;
+    margin: 0 auto 3rem;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .admin-order-table th, .admin-order-table td {
+    padding: 14px 16px;
+    text-align: center;
+    font-size: 1rem;
+    border: 1px solid #f0e6d2;
+  }
+  
+  .admin-order-table th {
+    background: linear-gradient(to right, #ffebc6, #fff4e0);
+    color: #b4884d;
+    font-weight: 600;
+  }
+  
+  .admin-order-table td {
+    color: #4b3621;
+  }
+  
+  .admin-order-table tr:hover {
+    background-color: #fff5e6;
+  }
+  
+  /* View Button */
+  .view-btn {
+    padding: 8px 18px;
+    background: #b4884d;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .view-btn:hover {
+    background-color: #a0743a;
+  }
+  
+  /* Checkbox Styling */
+  .admin-order-table input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #b4884d;
+  }
+  
+  /* Modal */
+  .order-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .order-modal-content {
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+  }
+  
+  .order-modal-content h2 {
+    margin-bottom: 1.5rem;
+    color: #b4884d;
+    font-size: 2rem;
+  }
+  
+  .order-details p,
+  .order-details ul {
+    margin: 0.5rem 0;
+    color: #5c3a1e;
+    font-size: 1.05rem;
+  }
+  
+  .order-details img {
+    margin-left: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #eee;
+    vertical-align: middle;
+  }
+  
+  .close-btn {
+    margin-top: 1.5rem;
+    background: #b4884d;
+    color: white;
+    padding: 0.9rem 2.2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .close-btn:hover {
+    background-color: #a0763b;
+  }
+  
+  /* Responsive */
+  @media (max-width: 700px) {
+    .admin-order-table th, .admin-order-table td {
+      padding: 10px 8px;
+      font-size: 0.92rem;
+    }
+    .order-modal-content {
+      padding: 1.5rem;
+      width: 95%;
+    }
+    .order-details img {
+      width: 36px;
+      height: 36px;
+    }
+  }
+  
