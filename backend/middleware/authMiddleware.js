@@ -2,7 +2,7 @@
 
 const jwt = require('jsonwebtoken');
 
-const authMiddleware = (req, res, next) => {
+const protect = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -15,7 +15,7 @@ const authMiddleware = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // ✅ Use the correct key from your token payload
-    req.user = { userId: decoded.userId };
+    req.user = { _id: decoded.userId };
 
     // Optional: Debug log
     console.log("✅ Decoded JWT:", decoded);
@@ -27,4 +27,4 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+module.exports = { protect };

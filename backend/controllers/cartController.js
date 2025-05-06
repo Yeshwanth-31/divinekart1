@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Cart = require('../models/Cart');
 
 exports.addToCart = async (req, res) => {
-  const userId = req.user.userId;
+  const userId = req.user._id;
   const { productId, quantity = 1 } = req.body;
 
   try {
@@ -35,7 +35,7 @@ exports.addToCart = async (req, res) => {
 };
 
 exports.getCart = async (req, res) => {
-  const userId = req.user.userId;
+  const userId = req.user._id;
 
   try {
     const cart = await Cart.findOne({ userId }).populate('items.productId');
@@ -46,7 +46,7 @@ exports.getCart = async (req, res) => {
 };
 
 exports.removeFromCart = async (req, res) => {
-  const userId = req.user.userId;
+  const userId = req.user._id;
   const { productId } = req.body;
 
   try {
@@ -64,8 +64,9 @@ exports.removeFromCart = async (req, res) => {
     res.status(500).json({ error: 'Failed to remove item from cart' });
   }
 };
+
 exports.updateQuantity = async (req, res) => {
-  const userId = req.user.userId;
+  const userId = req.user._id;
   const { productId, quantity } = req.body;
 
   try {

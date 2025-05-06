@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import "./CartPage.css";
 import { useSelector, useDispatch } from "react-redux";
-import { removeFromCart, updateQuantity, setCartItems } from "../redux/cartSlice";
-import { Link } from "react-router-dom";
+import { removeFromCart, updateQuantity, setCartItems, setLoading, setError } from "../redux/cartSlice";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Cart = () => {
-  const cartItems = useSelector((state) => state.cart.cartItems);
+  const { cartItems, loading, error } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const [showQR, setShowQR] = useState(false);
+  const navigate = useNavigate();
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + Number(item.price) * item.quantity,
@@ -18,7 +19,16 @@ const Cart = () => {
   useEffect(() => {
     const fetchCart = async () => {
       try {
+        dispatch(setLoading(true));
+        dispatch(setError(null));
+        
         const token = localStorage.getItem("token");
+        if (!token) {
+          dispatch(setError("Please login to view your cart"));
+          dispatch(setLoading(false));
+          return;
+        }
+
         const response = await axios.get("http://localhost:5000/api/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -40,6 +50,9 @@ const Cart = () => {
         dispatch(setCartItems(formattedItems));
       } catch (err) {
         console.error("❌ Failed to fetch cart:", err.message);
+        dispatch(setError(err.response?.data?.error || "Failed to fetch cart"));
+      } finally {
+        dispatch(setLoading(false));
       }
     };
 
@@ -48,8 +61,6 @@ const Cart = () => {
 
   const handleQuantityChange = async (id, quantity) => {
     if (quantity >= 1) {
-      dispatch(updateQuantity({ id, quantity }));
-
       try {
         const token = localStorage.getItem("token");
         await axios.post("http://localhost:5000/api/cart/update", {
@@ -58,23 +69,43 @@ const Cart = () => {
         }, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        dispatch(updateQuantity({ id, quantity }));
       } catch (err) {
         console.error("❌ Failed to update quantity in DB:", err.message);
+        dispatch(setError("Failed to update quantity"));
       }
     }
   };
 
   const handleRemoveItem = async (productId) => {
-    dispatch(removeFromCart(productId));
     try {
       const token = localStorage.getItem("token");
       await axios.post("http://localhost:5000/api/cart/remove", { productId }, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      dispatch(removeFromCart(productId));
     } catch (err) {
       console.error("❌ Error removing item from DB:", err.message);
+      dispatch(setError("Failed to remove item"));
     }
   };
+
+  if (loading) {
+    return (
+      <div className="cart-container">
+        <div className="loading">Loading cart...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="cart-container">
+        <div className="error-message">{error}</div>
+        <Link to="/" className="back-to-shop">← Back to Home</Link>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -116,7 +147,7 @@ const Cart = () => {
 
             <div className="cart-summary">
               <h3>Total: ₹{totalPrice.toFixed(2)}</h3>
-              <button className="checkout-btn" onClick={() => setShowQR(true)}>
+              <button className="checkout-btn" onClick={() => navigate('/checkout')}>
                 Proceed to Pay
               </button>
             </div>
