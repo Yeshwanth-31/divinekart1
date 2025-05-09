@@ -1,0 +1,197 @@
+.add-product-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-product-container h2 {
+  color: #5c3a1e;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #5c3a1e;
+  font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.variants-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.variant-card {
+  background: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #eee;
+}
+
+.variant-card h4 {
+  color: #5c3a1e;
+  margin-bottom: 1rem;
+}
+
+.dimensions-group {
+  margin-bottom: 1.5rem;
+}
+
+.dimensions-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.weight-input {
+  display: flex;
+  gap: 1rem;
+}
+
+.weight-input input {
+  flex: 2;
+}
+
+.weight-input select {
+  flex: 1;
+}
+
+.image-preview {
+  max-width: 200px;
+  max-height: 200px;
+  margin-top: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.add-variant,
+.remove-variant {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.add-variant {
+  background: #b4884d;
+  color: white;
+  margin-top: 1rem;
+}
+
+.remove-variant {
+  background: #dc3545;
+  color: white;
+  margin-top: 1rem;
+}
+
+.add-variant:hover {
+  background: #9b7340;
+}
+
+.remove-variant:hover {
+  background: #c82333;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.submit-button,
+.cancel-button {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.submit-button {
+  background: #b4884d;
+  color: white;
+}
+
+.cancel-button {
+  background: #6c757d;
+  color: white;
+}
+
+.submit-button:hover {
+  background: #9b7340;
+}
+
+.cancel-button:hover {
+  background: #5a6268;
+}
+
+.submit-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .add-product-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .dimensions-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .submit-button,
+  .cancel-button {
+    width: 100%;
+  }
+} 

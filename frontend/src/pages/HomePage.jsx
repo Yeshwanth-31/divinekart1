@@ -53,10 +53,10 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/api/products')
-      .then((res) => {
+    axios.get('http://localhost:5000/api/products')
+      .then(res => {
         setProducts(res.data);
+        console.log('Fetched products:', res.data);
         // Set price range based on products
         if (res.data.length > 0) {
           const prices = res.data.map(p => p.price);
@@ -157,12 +157,18 @@ const HomePage = () => {
   }, []);
 
   // Filtering logic
-  let filteredProducts = products.filter((product) => {
-    const matchesCategory = filter === 'All' || product.category === filter;
-    const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase());
-    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-    return matchesCategory && matchesSearch && matchesPrice;
-  });
+  let filteredProducts = products;
+  if (filter !== 'All') {
+    filteredProducts = products.filter(
+      (p) => {
+        // category can be string or object
+        if (typeof p.category === 'object' && p.category?.name) {
+          return p.category.name === filter;
+        }
+        return p.category === filter;
+      }
+    );
+  }
 
   // Sorting logic
   if (sortOption === 'priceLowHigh') {
@@ -237,6 +243,11 @@ const HomePage = () => {
     setShowLocationSearch(false);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Handle form submission
+  };
+
   return (
     <div className="homepage-container">
       {showLogin && <LoginPopup onClose={() => setShowLogin(false)} />}
@@ -250,7 +261,7 @@ const HomePage = () => {
           onChange={e => setSearch(e.target.value)}
         />
         <div className="nav-links">
-          <Link to="/blog" className="nav-link">Blog</Link>
+          <Link to="/review" className="nav-link">Review</Link>
           <Link to="/cart" className="nav-link">Cart</Link>
           <div className="location-search-container">
             <button 
@@ -334,34 +345,35 @@ const HomePage = () => {
           </div>
         </div>
       )}
-      <div className="filters filters-hamburger">
-        <button
-          className="hamburger-btn"
-          onClick={() => setShowCategoryDropdown((prev) => !prev)}
-          aria-label="Open category filter"
-        >
-          <FaBars size={22} />
-          <span style={{marginLeft: 8}}>Category</span>
-        </button>
-        {showCategoryDropdown && (
-          <div className="category-dropdown">
-            {categories.map((cat) => (
-              <div
-                key={cat}
-                className={`category-option${filter === cat ? ' active-category' : ''}`}
-                onClick={() => {
-                  setFilter(cat);
-                  setShowCategoryDropdown(false);
-                }}
-              >
-                {cat}
-              </div>
-            ))}
-          </div>
-        )}
-        <div className="sort-filter">
-          <span>Sort: </span>
-          <select value={sortOption} onChange={e => setSortOption(e.target.value)} className="sort-select">
+      {/* Category Tabs Below Navbar */}
+      <div className="category-tabs" style={{display:'flex',gap:12,justifyContent:'center',margin:'18px 0'}}>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            className={`category-tab${filter === cat ? ' active-category' : ''}`}
+            style={{
+              padding:'10px 22px',
+              borderRadius:8,
+              border:'none',
+              background: filter === cat ? '#b4884d' : '#fffaf3',
+              color: filter === cat ? '#fff' : '#5c3a1e',
+              fontWeight:'bold',
+              cursor:'pointer',
+              fontSize:'16px',
+              boxShadow: filter === cat ? '0 2px 8px #b4884d33' : '0 1px 4px #b4884d11',
+              transition:'all 0.2s',
+            }}
+            onClick={() => setFilter(cat)}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+      {/* Sort Filter on Right */}
+      <div style={{display:'flex',justifyContent:'flex-end',alignItems:'center',margin:'0 0 18px 0'}}>
+        <div className="sort-filter" style={{background:'#fffaf3',borderRadius:6,padding:'6px 12px',boxShadow:'0 1px 4px #b4884d11',fontSize:15,display:'flex',alignItems:'center',gap:8}}>
+          <span>Sort:</span>
+          <select value={sortOption} onChange={e => setSortOption(e.target.value)} className="sort-select" style={{marginLeft:6,padding:'4px 8px',border:'1px solid #e4c28b',borderRadius:4,background:'#fffdf8',color:'#5c3a1e',fontSize:15}}>
             <option value="">Default</option>
             <option value="priceLowHigh">Price: Low to High</option>
             <option value="priceHighLow">Price: High to Low</option>
@@ -373,38 +385,63 @@ const HomePage = () => {
       <h2 className="section-title">Featured Products</h2>
       <div className="catalogue">
         {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <div className="product-card" key={product._id}>
-              <Link
-                to={`/product/${product._id}`}
-                state={{ product }}
-                className="product-link"
-                style={{ textDecoration: 'none' }}
-              >
-                {product.imageUrl ? (
-                  <img src={product.imageUrl} alt={product.name} className="product-image" />
-                ) : (
-                  <div className="no-image">No Image</div>
-                )}
-                <h3>{product.name}</h3>
-                <p><strong>Material:</strong> {product.material}</p>
-              </Link>
-              <div className="product-card-actions">
-                <button
-                  className="add-to-cart-btn"
-                  onClick={e => {
-                    e.stopPropagation();
-                    handleAddToCart(product);
+          filteredProducts.map((product) => {
+            return (
+              <div className="product-card" key={product._id}>
+                <Link
+                  to={`/product/${product._id}`}
+                  className="product-link"
+                  style={{ textDecoration: 'none' }}
+                >
+                  {product.variants?.[0]?.imageUrl ? (
+                    <img src={product.variants[0].imageUrl} alt={product.name} className="product-image" />
+                  ) : (
+                    <div className="no-image">No Image</div>
+                  )}
+                  <h3>{product.name}</h3>
+                  <p><strong>Material:</strong> {product.variants?.[0]?.material || '-'}</p>
+                  <p><strong>Price:</strong> ₹{product.variants?.[0]?.price || '-'}</p>
+                  {product.variants?.[0]?.directDelivery && (
+                    <p style={{color:'#388e3c'}}><strong>Direct Delivery Available</strong></p>
+                  )}
+                  {product.variants?.[0]?.priceNotes && (
+                    <p><strong>Price Notes:</strong> {product.variants[0].priceNotes}</p>
+                  )}
+                </Link>
+                <button 
+                  className="add-to-cart-btn" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleAddToCart({
+                      _id: product._id + '-0',
+                      productId: product._id,
+                      name: product.name,
+                      description: product.description,
+                      category: product.category,
+                      ...product.variants[0],
+                      imageUrl: product.variants[0].imageUrl,
+                      price: product.variants[0].price,
+                      material: product.variants[0].material,
+                    });
+                  }}
+                  style={{
+                    marginTop: '12px',
+                    padding: '10px 14px',
+                    background: '#b4884d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    width: '100%',
+                    transition: 'background-color 0.3s'
                   }}
                 >
                   Add to Cart
                 </button>
-                <Link to={`/product/${product._id}`} state={{ product }} className="view-details-btn">
-                  View Details
-                </Link>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <p style={{ padding: '20px' }}>No products found for selected filters.</p>
         )}

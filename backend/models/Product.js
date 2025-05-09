@@ -1,15 +1,7 @@
 // backend/models/Product.js
 const mongoose = require('mongoose');
 
-const productSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  category: {
-    type: String,
-    required: true,
-  },
+const variantSchema = new mongoose.Schema({
   material: {
     type: String,
     required: true,
@@ -18,14 +10,43 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  dimensions: {
+    height: { type: Number, required: true },
+    width: { type: Number, required: true },
+    depth: { type: Number, required: true },
+  },
+  weight: {
+    value: { type: Number, required: true },
+    unit: { type: String, default: 'kg' },
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  directDelivery: {
+    type: Boolean,
+    default: false,
+  },
+  priceNotes: {
+    type: String,
+  },
+});
+
+const productSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true,
+  },
   description: {
     type: String,
     required: true,
   },
-  imageUrl: {
-    type: String,
-    required: true, // Cloudinary URL for the image
-  },
+  variants: [variantSchema],
 }, {
   timestamps: true,
 });

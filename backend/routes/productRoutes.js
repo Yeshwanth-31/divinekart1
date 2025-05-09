@@ -2,73 +2,94 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/upload');  // Assuming upload middleware handles Cloudinary upload
 const Product = require('../models/Product');
+// const auth = require('../middleware/auth');
+// const admin = require('../middleware/admin');
 
-// ✅ GET all products
+// Get all products
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.find().populate('category');
     res.json(products);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
-// ✅ POST new product with image (Image uploaded to Cloudinary)
-// routes/productroutes.js
-router.post('/', async (req, res) => {
-  try {
-    const { name, category, material, price, description, image } = req.body;
-
-    if (!name || !category || !material || !price || !description || !image) {
-      return res.status(400).json({ error: 'All fields are required including image URL' });
-    }
-
-    const newProduct = new Product({
-      name,
-      category,
-      material,
-      price,
-      description,
-      imageUrl: image, // ⬅️ save image URL
-    });
-
-    await newProduct.save();
-    res.status(201).json(newProduct);
-  } catch (error) {
-    console.error('Error saving product:', error);
-    res.status(500).json({ error: 'Error saving product' });
-  }
-});
-
-
-// ✅ UPDATE product
-router.put('/:id', async (req, res) => {
-  try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// ✅ DELETE product
-router.delete('/:id', async (req, res) => {
-  try {
-    await Product.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Product deleted' });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// ✅ GET single product by ID
+// Get a single product
 router.get('/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ error: 'Product not found' });
+    const product = await Product.findById(req.params.id).populate('category');
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
     res.json(product);
   } catch (err) {
-    res.status(500).json({ error: 'Error fetching product' });
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Create a new product (no auth)
+router.post('/', async (req, res) => {
+  try {
+    const { name, description, category, variants } = req.body;
+    const product = new Product({
+      name,
+      description,
+      category,
+      variants
+    });
+    const newProduct = await product.save();
+    res.status(201).json(newProduct);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Update a product (no auth)
+router.put('/:id', async (req, res) => {
+  try {
+    const { name, description, category, variants } = req.body;
+    const product = await Product.findById(req.params.id);
+    
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    product.name = name;
+    product.description = description;
+    product.category = category;
+    product.variants = variants;
+
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete a product (no auth)
+router.delete('/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    await product.remove();
+    res.json({ message: 'Product deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get products by category
+router.get('/category/:categoryId', async (req, res) => {
+  try {
+    const products = await Product.find({ category: req.params.categoryId }).populate('category');
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
