@@ -1,171 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './AdminDashboard.css';
+import AddProduct from './AddProduct';
+import EditProduct from './EditProduct';
+import CategoryManagement from './CategoryManagement';
+import AdminDashboardOrder from './AdminDashboardOrder';
 import { useNavigate } from 'react-router-dom';
+import logoImg from '../assets/logo.png';
 
 const AdminDashboard = () => {
-  const [tab, setTab] = useState(null);
+  const [activeMenu, setActiveMenu] = useState('products');
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [ordersLoading, setOrdersLoading] = useState(false);
-  const [ordersError, setOrdersError] = useState('');
-  const [newCategory, setNewCategory] = useState('');
-  const [showAddCategory, setShowAddCategory] = useState(false);
-  const [product, setProduct] = useState({
-    name: '',
-    category: '',
-    material: '',
-    price: '',
-    description: '',
-    image: null,
-  });
-  const [imagePreview, setImagePreview] = useState(null);
-  const [editingProductId, setEditingProductId] = useState(null);
-  const [editForm, setEditForm] = useState({
-    name: '',
-    category: '',
-    material: '',
-    price: '',
-    description: '',
-    image: null, // New file to upload
-    imagePreview: '', // Existing image URL
-  });
-  const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const [editProductId, setEditProductId] = useState(null);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [selectedProduct, setSelectedProduct] = useState(null); // For info panel
   const navigate = useNavigate();
+  const variantsScrollRef = useRef(null);
+
+  useEffect(() => {
+    if (activeMenu === 'products') fetchProducts();
+    if (activeMenu === 'categories') fetchCategories();
+    if (activeMenu === 'orders') fetchOrders();
+  }, [activeMenu]);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const response = await axios.get('http://localhost:5000/api/products');
-      setProducts(response.data);
-      console.log('Fetched products:', response.data);
+      // Accept both {products: [...]} and [...] as response
+      if (Array.isArray(response.data)) {
+        setProducts(response.data);
+      } else if (Array.isArray(response.data.products)) {
+        setProducts(response.data.products);
+      } else {
+        setProducts([]);
+      }
     } catch (err) {
       setError('Failed to fetch products');
+      setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    if (tab === 'categories') {
-      axios.get('http://localhost:5000/api/categories')
-        .then(res => setCategories(res.data))
-        .catch(() => setCategories([]));
-    }
-  }, [tab]);
-
-  useEffect(() => {
-    if (tab === 'orders') {
-      setOrdersLoading(true);
-      setOrdersError('');
-      const token = localStorage.getItem('token');
-      axios.get('http://localhost:5000/api/orders', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(res => setOrders(res.data))
-        .catch(() => setOrdersError('Failed to fetch orders'))
-        .finally(() => setOrdersLoading(false));
-    }
-  }, [tab]);
-
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === 'image') {
-      const file = files[0];
-      setProduct({ ...product, image: file });
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
-    } else {
-      setProduct({ ...product, [name]: value });
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:5000/api/categories');
+      setCategories(response.data);
+    } catch (err) {
+      setError('Failed to fetch categories');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    // Validate required fields
-    if (!formData.name || !formData.description || !formData.category) {
-      setError('Please fill in all required fields');
-      return;
-    }
-    if (!variants[0].imageUrl) {
-      setError('Please upload an image for the first variant.');
-      return;
-    }
-
-    // Validate all required variant fields
-    const v = variants[0];
-    if (
-      !v.material ||
-      !v.price ||
-      !v.dimensions.height ||
-      !v.dimensions.width ||
-      !v.dimensions.depth ||
-      !v.weight.value
-    ) {
-      setError('Please fill in all required fields for the main variant.');
-      return;
-    }
-
-    // Convert all number fields to numbers
-    const cleanVariants = variants.map(variant => ({
-      ...variant,
-      price: Number(variant.price),
-      dimensions: {
-        height: Number(variant.dimensions.height),
-        width: Number(variant.dimensions.width),
-        depth: Number(variant.dimensions.depth),
-      },
-      weight: {
-        value: Number(variant.weight.value),
-        unit: variant.weight.unit,
-      },
-      imageUrl: variant.imageUrl,
-      directDelivery: !!variant.directDelivery,
-      priceNotes: variant.priceNotes || '',
-      material: variant.material,
-    }));
-
+  const fetchOrders = async () => {
     try {
-      const payload = {
-        name: product.name,
-        category: product.category,
-        description: product.description,
-        variants: [
-          {
-            material: product.material,
-            price: parseFloat(product.price),
-            dimensions: {
-              height: Number(product.height),
-              width: Number(product.width),
-              depth: Number(product.depth),
-            },
-            weight: {
-              value: Number(product.weightValue),
-              unit: product.weightUnit || 'kg',
-            },
-            imageUrl: imageUrl,
-            directDelivery: !!product.directDelivery,
-            priceNotes: product.priceNotes || '',
-          }
-        ]
-      };
-      await axios.put(`/api/products/${id}`, payload);
-      setSuccess('Product updated successfully');
-      setTimeout(() => navigate('/admin'), 2000);
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/orders', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setOrders(response.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update product');
+      setError('Failed to fetch orders');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -175,184 +81,341 @@ const AdminDashboard = () => {
         await axios.delete(`http://localhost:5000/api/products/${id}`);
         fetchProducts();
       } catch (err) {
-        setError('Failed to delete product');
+        console.error('Delete error:', err.response?.data || err.message); // Add this for debugging
+        setError(err.response?.data?.message || 'Failed to delete product');
       }
     }
   };
 
-  const handleEditClick = (product) => {
-    setEditingProductId(product._id);
-    setEditForm({
-      name: product.name,
-      category: product.category,
-      material: product.material,
-      price: product.price,
-      description: product.description,
-      image: null,
-      imagePreview: product.image, // Store the current image URL
-    });
-  };
+  // Sidebar menu items
+  const menuItems = [
+    { key: 'products', label: 'View Products' },
+    { key: 'add-product', label: 'Add Product' },
+    { key: 'categories', label: 'Manage Categories' },
+    { key: 'orders', label: 'View Orders' },
+  ];
 
-  const handleEditChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === 'image') {
-      setEditForm((prev) => ({ ...prev, image: files[0] }));
-    } else {
-      setEditForm((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    try {
-      let updatedData = { ...editForm };
-
-      if (editForm.image) {
-        const formData = new FormData();
-        formData.append('file', editForm.image);
-        formData.append('upload_preset', 'divinekartpreset');
-
-        const cloudRes = await axios.post(
-          'https://api.cloudinary.com/v1_1/dtxmdveob/image/upload',
-          formData
+  // Filter products by search and category
+  const filteredProducts = products.filter(product => {
+    // Category filter
+    if (categoryFilter !== 'All') {
+      // Handle category as array (populated or not)
+      if (Array.isArray(product.category)) {
+        // Populated: array of objects with .name, or array of strings (ObjectIds)
+        const match = product.category.some(cat =>
+          (typeof cat === 'object' && cat !== null && cat.name === categoryFilter) ||
+          (typeof cat === 'string' && cat === categoryFilter)
         );
-
-        updatedData.image = cloudRes.data.secure_url;
+        if (!match) return false;
+      } else if (
+        typeof product.category === 'object' &&
+        product.category !== null &&
+        product.category.name
+      ) {
+        if (product.category.name !== categoryFilter) return false;
+      } else if (typeof product.category === 'string') {
+        if (product.category !== categoryFilter) return false;
       } else {
-        updatedData.image = editForm.imagePreview;
+        return false;
       }
-
-      delete updatedData.imagePreview;
-
-      await axios.put(`http://localhost:5000/api/products/${editingProductId}`, updatedData);
-      alert('Product updated!');
-      setEditingProductId(null);
-      fetchProducts();
-    } catch (err) {
-      console.error('Update failed:', err);
-      alert('Failed to update product.');
     }
-  };
-
-  const handleCategoryChange = (e) => {
-    setProduct({ ...product, category: e.target.value });
-    if (e.target.value === '__add_new__') {
-      setShowAddCategory(true);
+    // Search filter
+    if (!search) return true;
+    const s = search.toLowerCase();
+    // Match productId, category prefix, material prefix
+    let catNames = [];
+    if (Array.isArray(product.category)) {
+      catNames = product.category
+        .map(cat =>
+          typeof cat === 'object' && cat !== null && cat.name
+            ? cat.name.toLowerCase()
+            : typeof cat === 'string'
+              ? cat.toLowerCase()
+              : ''
+        );
+    } else if (typeof product.category === 'object' && product.category !== null && product.category.name) {
+      catNames = [product.category.name.toLowerCase()];
+    } else if (typeof product.category === 'string') {
+      catNames = [product.category.toLowerCase()];
     }
-  };
+    const pid = product.productId?.toLowerCase() || '';
+    const mat = product.variants?.[0]?.material?.toLowerCase() || '';
+    return (
+      pid.startsWith(s) ||
+      catNames.some(cn => cn.substring(0, 2).startsWith(s)) ||
+      mat.substring(0, 2).startsWith(s)
+    );
+  });
 
-  const handleAddCategory = (e) => {
-    e.preventDefault();
-    if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setProduct({ ...product, category: newCategory });
-      setNewCategory('');
-      setShowAddCategory(false);
+  // Render content based on active menu
+  const renderContent = () => {
+    if (editProductId) {
+      // Render EditProduct in-place, and reset editProductId on cancel/success
+      return (
+        <EditProduct
+          productId={editProductId}
+          onCancel={() => setEditProductId(null)}
+          onSuccess={() => {
+            setEditProductId(null);
+            fetchProducts();
+          }}
+        />
+      );
     }
-  };
-
-  const handleViewOrder = (order) => {
-    setSelectedOrder(order);
-    document.body.classList.add('modal-open');
-  };
-
-  const handleCloseModal = () => {
-    setSelectedOrder(null);
-    document.body.classList.remove('modal-open');
+    if (activeMenu === 'products') {
+      // Add a wrapper div for flex layout
+      return (
+        <div className={`products-section-flex${selectedProduct ? ' info-panel-open' : ''}`} style={{display:'flex',position:'relative'}}>
+          <div
+            className={`products-section products-section-main${selectedProduct ? ' shrink-for-info-panel' : ''}`}
+            style={{
+              flex: selectedProduct ? '0 0 calc(100% - 420px)' : '1 1 100%',
+              maxWidth: selectedProduct ? 'calc(100% - 420px)' : '100%',
+              transition: 'max-width 0.2s',
+              minWidth: 0,
+              overflow: 'visible'
+            }}
+          >
+            <h2>Products</h2>
+            {/* Category Breadcrumbs */}
+            <div style={{display:'flex',gap:8,overflowX:'auto',marginBottom:16}}>
+              <button
+                style={{
+                  padding:'8px 18px',borderRadius:8,border:'none',
+                  background: categoryFilter === 'All' ? '#b4884d' : '#fffaf3',
+                  color: categoryFilter === 'All' ? '#fff' : '#5c3a1e',
+                  fontWeight:'bold',cursor:'pointer'
+                }}
+                onClick={() => setCategoryFilter('All')}
+              >All</button>
+              {categories.map(cat => (
+                <button
+                  key={cat._id}
+                  style={{
+                    padding:'8px 18px',borderRadius:8,border:'none',
+                    background: categoryFilter === cat.name ? '#b4884d' : '#fffaf3',
+                    color: categoryFilter === cat.name ? '#fff' : '#5c3a1e',
+                    fontWeight:'bold',cursor:'pointer'
+                  }}
+                  onClick={() => setCategoryFilter(cat.name)}
+                >{cat.name}</button>
+              ))}
+            </div>
+            {/* Search Box */}
+            <div style={{marginBottom:18}}>
+              <input
+                type="text"
+                placeholder="Search by Product ID, Category, or Material (first 2 letters)..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{
+                  padding:'10px 16px',borderRadius:8,border:'1px solid #e4c28b',
+                  width:'320px',fontSize:'1rem',marginRight:8
+                }}
+              />
+            </div>
+            {loading ? (
+              <div className="loading">Loading products...</div>
+            ) : (
+              <div
+                className={`products-grid ${selectedProduct ? 'products-grid-3col' : 'products-grid-4col'}`}
+                style={{
+                  transition: 'grid-template-columns 0.2s',
+                  marginRight: selectedProduct ? 0 : undefined
+                }}
+              >
+                {filteredProducts.length === 0 ? (
+                  <div style={{gridColumn: '1/-1', textAlign: 'center', color: '#b4884d', fontSize: '1.2rem', marginTop: 40}}>
+                    No products found.
+                  </div>
+                ) : (
+                  filteredProducts.map(product => {
+                    const variant = Array.isArray(product.variants) && product.variants.length > 0
+                      ? product.variants[0]
+                      : { price: '-', stock: '-', imageUrl: '', material: '-' };
+                    return (
+                      <div
+                        key={product._id}
+                        className={`product-card${selectedProduct && selectedProduct._id === product._id ? ' selected' : ''}`}
+                        onClick={() => setSelectedProduct(product)}
+                        style={{
+                          cursor: 'pointer',
+                          border: selectedProduct && selectedProduct._id === product._id ? '2px solid #b4884d' : undefined,
+                          height: 355,
+                          padding: '0',
+                          background: '#fff',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'flex-start',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.08)'
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '180px',
+                            background: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderTopLeftRadius: 8,
+                            borderTopRightRadius: 8,
+                            overflow: 'hidden',
+                            padding: '8px 0',
+                            boxSizing: 'border-box'
+                          }}
+                        >
+                          {variant.imageUrl ? (
+                            <img
+                              src={variant.imageUrl}
+                              alt={product.name}
+                              style={{
+                                maxWidth: '100%',
+                                maxHeight: '100%',
+                                objectFit: 'contain',
+                                background: '#fff',
+                                borderRadius: 8
+                              }}
+                            />
+                          ) : (
+                            <div className="no-image" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'#b4884d'}}>No Image</div>
+                          )}
+                        </div>
+                        <div
+                          className="product-info"
+                          style={{
+                            flex: 1,
+                            padding: '8px 14px 2px 14px',
+                            background: '#fff',
+                            borderBottomLeftRadius: 8,
+                            borderBottomRightRadius: 8,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'flex-start'
+                          }}
+                        >
+                          <h3 style={{marginBottom:4}}>{product.name}</h3>
+                          <p style={{margin:'2px 0',fontSize:14}}><strong>Product ID:</strong> {product.productId}</p>
+                          <p style={{margin:'2px 0',fontSize:14}}><strong>Price:</strong> ₹{variant.price}</p>
+                          <p style={{margin:'2px 0',fontSize:14}}><strong>Stock:</strong> {variant.stock ?? '-'}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
+          {/* Product Info Side Panel */}
+          {selectedProduct && (
+            <div className="product-info-panel">
+              {/* Fixed Header */}
+              <div className="info-panel-header">
+                <button className="close-info-panel" onClick={() => setSelectedProduct(null)} title="Close">×</button>
+                <h2 style={{marginTop:0}}>{selectedProduct.name}</h2>
+                <p><strong>Product ID:</strong> {selectedProduct.productId}</p>
+                <p><strong>Description:</strong> {selectedProduct.description}</p>
+                <p><strong>Category:</strong> {
+                  Array.isArray(selectedProduct.category)
+                    ? selectedProduct.category.map(cat =>
+                        typeof cat === 'object' && cat !== null && cat.name
+                          ? cat.name
+                          : typeof cat === 'string'
+                            ? cat
+                            : '-'
+                      ).join(', ')
+                    : (selectedProduct.category?.name || selectedProduct.category || '-')
+                }</p>
+              </div>
+              {/* Scrollable Variants */}
+              <div className="info-panel-variants-scroll" ref={variantsScrollRef}>
+                <h4 style={{marginTop:0}}>Variants:</h4>
+                <div className="variant-list">
+                  {selectedProduct.variants.map((variant, idx) => (
+                    <div key={idx} className="variant-info-panel">
+                      <p><strong>Variant Product ID:</strong> {variant.productId}</p>
+                      <p><strong>Material:</strong> {variant.material}</p>
+                      <p><strong>Dimensions:</strong> 
+                        {['height', 'width', 'depth'].map(dim =>
+                          variant.dimensions?.[dim]?.value
+                            ? ` ${dim.charAt(0).toUpperCase() + dim.slice(1)}: ${variant.dimensions[dim].value} ${variant.dimensions[dim].unit}`
+                            : ''
+                        ).join(',') || ' -'}
+                      </p>
+                      <p><strong>Weight:</strong> {variant.weight ? `${variant.weight.value} ${variant.weight.unit}` : '-'}</p>
+                      <p><strong>Image:</strong></p>
+                      {/* Custom Fields above image */}
+                      {variant.customFields && variant.customFields.length > 0 && (
+                        <div>
+                          <strong>Custom Fields:</strong>
+                          <ul>
+                            {variant.customFields.map((field, fidx) => (
+                              <li key={fidx}>{field.label}: {field.value}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {variant.imageUrl && (
+                        <img src={variant.imageUrl} alt="Variant" style={{width:120,margin:'8px 0',borderRadius:8}} />
+                      )}
+                      <p><strong>Direct Delivery:</strong> {variant.directDelivery ? 'Yes' : 'No'}</p>
+                      <p><strong>Price Notes:</strong> {variant.priceNotes || '-'}</p>
+                      <p><strong>Price:</strong> ₹{variant.price}</p>
+                      <p><strong>Stock:</strong> {variant.stock ?? '-'}</p>
+                      <p><strong>Show in Store:</strong> {variant.showInStore ? 'Yes' : 'No'}</p>
+                      <hr style={{margin:'12px 0'}} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    if (activeMenu === 'add-product') {
+      return <AddProduct />;
+    }
+    if (activeMenu === 'categories') {
+      return <CategoryManagement />;
+    }
+    if (activeMenu === 'orders') {
+      return <AdminDashboardOrder />;
+    }
+    return null;
   };
 
   return (
-    <div className="admin-dashboard">
-      <div className="admin-header">
-        <h1>Admin Dashboard</h1>
-        <div className="admin-actions">
-          <button onClick={() => navigate('/admin/add-product')} className="add-button">
-            Add New Product
-          </button>
-          <button onClick={() => navigate('/admin/categories')} className="manage-button">
-            Manage Categories
-          </button>
-          <button onClick={() => navigate('/admin/orders')} className="orders-button">
-            View Orders
-          </button>
+    <div className="admin-layout">
+      <aside className="admin-sidebar">
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:24}}>
+          <img
+            src={logoImg}
+            alt="Divine Kart Logo"
+            style={{height: 40, width: 40, borderRadius: '50%', objectFit: 'cover', background: '#fff'}}
+          />
+          <h2 style={{margin:0}}>Admin Panel</h2>
         </div>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="products-section">
-        <h2>Products</h2>
-        {loading ? (
-          <div className="loading">Loading products...</div>
-        ) : (
-          <div className="products-grid">
-            {products.map(product => (
-              <div key={product._id} className="product-card">
-                {product.variants?.[0]?.imageUrl ? (
-                  <img src={product.variants[0].imageUrl} alt={product.name} className="product-image" />
-                ) : (
-                  <div className="no-image">No Image</div>
-                )}
-                <div className="product-info">
-                  <h3>{product.name}</h3>
-                  <p>{product.description}</p>
-                  <p><strong>Material:</strong> {product.variants?.[0]?.material}</p>
-                  <div className="product-actions">
-                    <button
-                      onClick={() => navigate(`/admin/edit-product/${product._id}`)}
-                      className="edit-button"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(product._id)}
-                      className="delete-button"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {editingProductId && (
-        <form onSubmit={handleUpdate} className="edit-product-form">
-          <div className="variants-section">
-            <h3>Edit Product Variants</h3>
-            {editForm.variants && editForm.variants.map((variant, index) => (
-              <div key={index} className="variant-card">
-                <h4>Variant {index + 1}</h4>
-                {/* ...variant fields for editing... */}
-              </div>
-            ))}
-            <button
-              type="button"
-              className="add-variant-btn"
-              style={{marginTop:'12px',padding:'8px 18px',background:'#b4884d',color:'#fff',border:'none',borderRadius:'6px',fontWeight:'bold',cursor:'pointer'}}
-              onClick={() => setEditForm(prev => ({
-                ...prev,
-                variants: [
-                  ...(prev.variants || []),
-                  {
-                    material: '',
-                    price: '',
-                    dimensions: { height: '', width: '', depth: '' },
-                    weight: { value: '', unit: 'kg' },
-                    imageUrl: '',
-                    directDelivery: false,
-                    priceNotes: ''
-                  }
-                ]
-              }))}
+        <ul className="admin-menu">
+          {menuItems.map(item => (
+            <li
+              key={item.key}
+              className={`admin-menu-item${activeMenu === item.key ? ' active' : ''}`}
+              onClick={() => {
+                setActiveMenu(item.key);
+                setEditProductId(null);
+              }}
             >
-              + Add Variant
-            </button>
-          </div>
-        </form>
-      )}
+              {item.label}
+            </li>
+          ))}
+        </ul>
+      </aside>
+      <main className="admin-content">
+        {error && <div className="error-message">{error}</div>}
+        {/* Sticky Navbar */}
+        {renderContent()}
+      </main>
     </div>
   );
 };

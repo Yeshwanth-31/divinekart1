@@ -1,16 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./CartPage.css";
 import { useSelector, useDispatch } from "react-redux";
-import { removeFromCart, updateQuantity, setCartItems, setLoading, setError } from "../redux/cartSlice";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { FaUserCircle, FaMapMarkerAlt, FaSearch } from 'react-icons/fa';
+import { removeFromCart, updateQuantity } from "../redux/cartSlice";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { FaUserCircle, FaMapMarkerAlt, FaSearch, FaTimes } from 'react-icons/fa';
+import LoginPopup from '../components/LoginPopup';
+import logoImg from '../assets/logo.png';
 
 const Cart = () => {
   const { cartItems, loading, error } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
-  const [showQR, setShowQR] = useState(false);
-  const navigate = useNavigate();
   const [showLocationSearch, setShowLocationSearch] = useState(false);
   const [userLocation, setUserLocation] = useState("");
   const [pincode, setPincode] = useState("");
@@ -18,14 +17,19 @@ const Cart = () => {
   const [loadingPin, setLoadingPin] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [username, setUsername] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
+  const [pendingCheckout, setPendingCheckout] = useState(false);
   const profileRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (userData) {
       const parsed = JSON.parse(userData);
       setUsername(parsed.name || '');
-      setUserLocation(parsed.location || '');
+      setUserLocation(parsed.location || parsed.address || '');
+      // Optionally: setCity(parsed.city), setState(parsed.state), etc.
     }
   }, []);
 
@@ -89,8 +93,22 @@ const Cart = () => {
     }
   };
 
-  const handleRemoveItem = (productId) => {
-    dispatch(removeFromCart(productId));
+  // Helper to check login
+  const isLoggedIn = () => !!localStorage.getItem('token');
+
+  // Handle login success
+  const handleLoginSuccess = () => {
+    setShowLogin(false);
+    if (pendingCheckout) {
+      setPendingCheckout(false);
+      navigate('/checkout');
+    }
+    // No navigation if not pending checkout
+  };
+
+  // Remove handler for cart item
+  const handleRemoveItem = (id) => {
+    dispatch(removeFromCart(id));
   };
 
   if (loading) {
@@ -112,60 +130,45 @@ const Cart = () => {
 
   return (
     <>
-      {/* Top Navigation Bar (copied from HomePage) */}
-      <nav className="navbar">
-        <h1 className="logo" style={{display:'flex',alignItems:'center',gap:8}}>
-          🛕 Divine Kart
+      {showLogin && (
+        <LoginPopup
+          onClose={() => setShowLogin(false)}
+          onLoginSuccess={handleLoginSuccess}
+          redirectTo={location.pathname + location.search}
+        />
+      )}
+      <nav className="navbar navbar-sticky">
+        <h1 className="logo" style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          margin: 0
+        }}>
+          <img
+            src={logoImg}
+            alt="Divine Kart Logo"
+            style={{
+              height: 70,
+              width: 70,
+              borderRadius: '50%',
+              objectFit: 'cover',
+              marginRight: 14,
+              background: '#fff'
+            }}
+          />
+          <span style={{ fontSize: '2.2rem', fontWeight: 'bold', color: '#b4884d' }}>Divine Kart</span>
         </h1>
-        <div className="nav-links">
-          <Link to="/" className="nav-link" style={{fontWeight:'bold'}}>Home</Link>
-          <Link to="/review" className="nav-link">Review</Link>
-          <div className="location-search-container">
-            <button 
-              className="location-search-btn"
-              onClick={() => setShowLocationSearch(!showLocationSearch)}
-            >
-              <FaMapMarkerAlt /> {userLocation || 'Set Location'}
-            </button>
-            {showLocationSearch && (
-              <div className="location-search-dropdown">
-                <div className="location-search-input-container">
-                  <FaSearch className="location-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Enter 6-digit pincode..."
-                    className="location-search-input"
-                    value={pincode}
-                    onChange={e => setPincode(e.target.value.replace(/[^0-9]/g, ''))}
-                    maxLength={6}
-                    autoFocus
-                  />
-                </div>
-                <div>
-                  {loadingPin && <div>Loading...</div>}
-                  {pinSuggestions.map(suggestion => (
-                    <div
-                      key={suggestion.value}
-                      className="suggestion-item"
-                      onClick={() => handleSelectPinSuggestion(suggestion)}
-                    >
-                      {suggestion.label}
-                    </div>
-                  ))}
-                  {!loadingPin && pincode.length === 6 && pinSuggestions.length === 0 && (
-                    <div className="suggestion-item">No results found</div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="profile-container" ref={profileRef} onClick={() => setDropdownOpen(!dropdownOpen)}>
+        <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/cart" className="nav-link">Cart</Link>
+          <div className="profile-container" ref={profileRef} onClick={() => setDropdownOpen(!dropdownOpen)} style={{ marginLeft: 8 }}>
             {username && <span className="username-only">{username}</span>}
             <FaUserCircle size={28} className="profile-icon" />
             {dropdownOpen && (
               <div className="profile-dropdown">
                 {!username && (
                   <span className="profile-option" onClick={() => {
+                    setShowLogin(true);
                     setDropdownOpen(false);
                   }}>
                     Login
@@ -176,9 +179,6 @@ const Cart = () => {
                 </Link>
                 {username && (
                   <>
-                    <span className="profile-option" onClick={() => {/* setShowLocationInput(true); */}}>
-                      Update Location
-                    </span>
                     <span className="profile-option" onClick={handleLogout}>
                       Logout
                     </span>
@@ -189,57 +189,104 @@ const Cart = () => {
           </div>
         </div>
       </nav>
-      {/* End Top Navigation Bar */}
-      <div className="cart-container">
-        <h2 className="cart-title">🛒 Your Shopping Cart</h2>
+      <div className="navbar-spacer" style={{ height: '32px' }} />
+      {/* Cart Content */}
+      <div className="cart-container cart-container-simple">
+        {/* Cart Title */}
+        <h2
+          className="cart-title"
+          style={{
+            fontSize: '2.2rem',
+            color: '#b4884d',
+            fontWeight: 700,
+            letterSpacing: 1,
+            textAlign: 'center',
+            marginBottom: 36,
+            marginTop: 10,
+            fontFamily: "'Playfair Display', serif"
+          }}
+        >
+          CART
+        </h2>
         {cartItems.length === 0 ? (
           <div className="empty-cart">
             <p>Your cart is empty.</p>
           </div>
         ) : (
           <>
-            <div className="cart-list">
+            {/* Header Row */}
+            <div className="cart-header-row">
+              <div className="cart-header-col cart-header-product">PRODUCT</div>
+              <div className="cart-header-col cart-header-qty">QUANTITY</div>
+              <div className="cart-header-col cart-header-total">TOTAL</div>
+              {/* <div className="cart-header-col cart-header-remove"></div> */}
+            </div>
+            <div className="cart-list cart-list-simple">
               {cartItems.map((item, index) => (
-                <div className="cart-item" key={`${item._id}-${index}`}>
-                  <img src={item.imageUrl} alt={item.name} className="cart-img" />
-                  <div className="cart-details">
-                    <h3>{item.name}</h3>
-                    <p><strong>Material:</strong> {item.material}</p>
-                    <p><strong>Price:</strong> ₹{item.price}</p>
-                    <p><strong>Dimensions:</strong> {item.dimensions ? `${item.dimensions.height} x ${item.dimensions.width} x ${item.dimensions.depth} cm` : '-'}</p>
-                    <p><strong>Weight:</strong> {item.weight ? `${item.weight.value} ${item.weight.unit}` : '-'}</p>
-                    {item.directDelivery && <p style={{color:'#388e3c'}}><strong>Direct Delivery Available</strong></p>}
-                    {item.priceNotes && <p><strong>Price Notes:</strong> {item.priceNotes}</p>}
-                    <div className="quantity-controls">
-                      <button onClick={() => handleQuantityChange(item._id, item.quantity - 1)}>-</button>
-                      <span>{item.quantity}</span>
-                      <button onClick={() => handleQuantityChange(item._id, item.quantity + 1)}>+</button>
+                <div className="cart-item cart-item-simple" key={`${item._id}-${index}`}>
+                  {/* 1st column: image, name, price */}
+                  <div className="cart-col cart-col-product">
+                    <div className="cart-item-main">
+                      <img src={item.imageUrl} alt={item.name} className="cart-img cart-img-simple" />
+                      <div className="cart-item-info">
+                        <div className="cart-item-name">{item.name}</div>
+                        <div className="cart-item-unitprice">Rs. {Number(item.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                      </div>
                     </div>
-                    <p><strong>Subtotal:</strong> ₹{item.price * item.quantity}</p>
-                    <button className="remove-btn" onClick={() => handleRemoveItem(item._id)}>Remove</button>
                   </div>
+                  {/* 2nd column: quantity controls */}
+                  <div className="cart-col cart-col-qty">
+                    <div className="cart-item-qty">
+                      <button className="qty-btn" onClick={() => handleQuantityChange(item._id, item.quantity - 1)}>-</button>
+                      <span className="cart-qty-value">{item.quantity}</span>
+                      <button className="qty-btn" onClick={() => handleQuantityChange(item._id, item.quantity + 1)}>+</button>
+                    </div>
+                  </div>
+                  {/* 3rd column: total price and remove */}
+                  <div className="cart-col cart-col-total">
+                    <div className="cart-item-price">Rs. {(item.price * item.quantity).toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                    <button
+                      className="remove-btn"
+                      title="Remove from cart"
+                      onClick={() => handleRemoveItem(item._id)}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                  {/* <div className="cart-col cart-col-remove">
+                    <button
+                      className="remove-btn"
+                      title="Remove from cart"
+                      onClick={() => handleRemoveItem(item._id)}
+                    >
+                      &times;
+                    </button>
+                  </div> */}
                 </div>
               ))}
             </div>
-
-            <div className="cart-summary">
-              <h3>Total: ₹{totalPrice.toFixed(2)}</h3>
-              <button className="checkout-btn" onClick={() => navigate('/checkout')}>
+            <div className="cart-summary cart-summary-simple">
+              <div className="cart-summary-row">
+                <span className="cart-summary-label">Total</span>
+                <span className="cart-summary-value">Rs. {totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+              </div>
+              <button
+                className="checkout-btn"
+                onClick={() => {
+                  if (!isLoggedIn()) {
+                    setShowLogin(true);
+                    setPendingCheckout(true);
+                    return;
+                  }
+                  navigate('/checkout');
+                }}
+              >
                 Proceed to Pay
               </button>
             </div>
           </>
         )}
       </div>
-      {showQR && (
-        <div className="qr-modal-overlay" onClick={() => setShowQR(false)}>
-          <div className="qr-modal" onClick={e => e.stopPropagation()}>
-            <h2>Scan to Pay</h2>
-            <img src="/payment-qr.png" alt="Payment QR" className="qr-image" />
-            <button className="close-qr-btn" onClick={() => setShowQR(false)}>Close</button>
-          </div>
-        </div>
-      )}
     </>
   );
 };

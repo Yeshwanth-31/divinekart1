@@ -4,8 +4,6 @@ const Order = require('../models/Order');
 const getUserProfile = async (req, res) => {
   try {
     const userId = req.user._id;
-    
-    // Get user details
     const user = await User.findById(userId).select('-password');
     
     // Get order statistics
@@ -27,7 +25,7 @@ const getUserProfile = async (req, res) => {
       user: {
         name: user.name,
         email: user.email,
-        location: user.location,
+        address: user.address, // address is now an object
         joinedDate: user.createdAt,
       },
       stats: {
@@ -47,21 +45,25 @@ const getUserProfile = async (req, res) => {
 const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { name, email, password, location } = req.body;
+    const { name, email, password, address } = req.body;
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     user.name = name || user.name;
     user.email = email || user.email;
-    if (location !== undefined) {
-      user.location = location;
+    if (address) {
+      user.address = { ...user.address, ...address }; // merge address fields
     }
     if (password) {
       const bcrypt = require('bcryptjs');
       user.password = await bcrypt.hash(password, 10);
     }
     await user.save();
-    res.json({ success: true, message: 'Profile updated' });
+    res.json({ success: true, message: 'Profile updated', user: {
+      name: user.name,
+      email: user.email,
+      address: user.address
+    } });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Update failed' });
   }
@@ -112,4 +114,4 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
   updateLocation
-}; 
+};

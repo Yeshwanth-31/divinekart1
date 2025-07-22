@@ -3,19 +3,19 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.signup = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, address } = req.body;
   
     try {
       const exists = await User.findOne({ email });
       if (exists) return res.status(400).json({ error: 'User already exists' });
   
       const hashed = await bcrypt.hash(password, 10);
-      const newUser = await User.create({ name, email, password: hashed });
+      const newUser = await User.create({ name, email, password: hashed, address });
   
       const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
       res.status(201).json({
         token,
-        user: { name: newUser.name, email: newUser.email, id: newUser._id }
+        user: { name: newUser.name, email: newUser.email, id: newUser._id, address: newUser.address }
       });
     } catch (err) {
       res.status(500).json({ error: 'Signup failed' });

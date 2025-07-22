@@ -11,17 +11,31 @@ const variantSchema = new mongoose.Schema({
     required: true,
   },
   dimensions: {
-    height: { type: Number, required: true },
-    width: { type: Number, required: true },
-    depth: { type: Number, required: true },
+    height: {
+      value: { type: Number },
+      unit: { type: String, enum: ['cm', 'inches', 'meters'], default: 'inches' }
+    },
+    width: {
+      value: { type: Number },
+      unit: { type: String, enum: ['cm', 'inches', 'meters'], default: 'inches' }
+    },
+    depth: {
+      value: { type: Number },
+      unit: { type: String, enum: ['cm', 'inches', 'meters'], default: 'inches' }
+    }
   },
   weight: {
-    value: { type: Number, required: true },
+    value: { type: Number },
     unit: { type: String, default: 'kg' },
   },
   imageUrl: {
     type: String,
     required: true,
+  },
+  stock: {
+    type: Number,
+    default: 0,
+    min: 0,
   },
   directDelivery: {
     type: Boolean,
@@ -30,6 +44,20 @@ const variantSchema = new mongoose.Schema({
   priceNotes: {
     type: String,
   },
+  customFields: [
+    {
+      label: { type: String },
+      value: { type: String }
+    }
+  ],
+  showInStore: {
+    type: Boolean,
+    default: true
+  },
+  productId: {
+    type: String,
+    required: true,
+  }
 });
 
 const productSchema = new mongoose.Schema({
@@ -37,11 +65,16 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  category: {
+  productId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  category: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
     required: true,
-  },
+  }],
   description: {
     type: String,
     required: true,

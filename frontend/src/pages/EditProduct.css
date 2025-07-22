@@ -147,4 +147,82 @@
   border-radius: 4px;
   margin: 2rem auto;
   max-width: 600px;
-} 
+}
+
+.price-group input[type="text"].price-input {
+  width: 120px;
+  -moz-appearance: textfield;
+}
+.price-group input[type="number"]::-webkit-outer-spin-button,
+.price-group input[type="number"]::-webkit-inner-spin-button,
+.price-group input[type="text"].price-input::-webkit-outer-spin-button,
+.price-group input[type="text"].price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.dimensions-group {
+  margin-bottom: 1.5rem;
+  background: #f6f1e7;
+  border-radius: 6px;
+  padding: 1rem 1rem 1.2rem 1rem;
+  min-height: 90px;
+}
+
+.dimensions-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  min-height: 70px;
+}
+
+.dimensions-inputs input[type="number"] {
+  width: 100%;
+  min-width: 120px;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+.dimensions-inputs select {
+  width: 90px;
+  min-width: 70px;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+.weight-group .weight-input {
+  max-width: 220px;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.weight-group input[type="number"] {
+  width: 120px;
+  min-width: 90px;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+.weight-group select {
+  width: 90px;
+  min-width: 70px;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+.remove-variant-btn {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-left: 10px;
+  transition: background 0.2s;
+}
+
+.remove-variant-btn:hover {
+  background: #b71c1c;
+}

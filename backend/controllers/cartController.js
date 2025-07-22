@@ -85,4 +85,5 @@ exports.updateQuantity = async (req, res) => {
     res.status(500).json({ error: "Failed to update cart item quantity" });
   }
 };
+// No changes needed if protect middleware is used and working
 

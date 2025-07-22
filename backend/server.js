@@ -10,10 +10,17 @@ const cartRoutes = require('./routes/cartRoutes');
 const userRoutes = require('./routes/userRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Initialize express app
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Check for required environment variables
+if (!process.env.JWT_SECRET || !process.env.MONGODB_URI) {
+  console.error('❌ Missing required environment variables. Check .env file.');
+  process.exit(1);
+}
 
 // ✅ MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
@@ -38,6 +45,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // ✅ Test Route
 app.get('/', (req, res) => {

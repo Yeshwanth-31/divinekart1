@@ -28,3 +28,6 @@ const protect = (req, res, next) => {
 };
 
 module.exports = { protect };
+
+// No changes needed if you use this file as your main auth middleware
+// Just ensure your routes use: const { protect } = require('../middleware/authMiddleware');

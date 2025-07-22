@@ -4,7 +4,7 @@ const User = require('../models/User');
 // Create a new order
 exports.createOrder = async (req, res) => {
   try {
-    const { name, address, items, totalAmount, paymentMethod } = req.body;
+    const { name, address, items, totalAmount, paymentMethod, razorpayPaymentId } = req.body;
     const userId = req.user?._id;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -21,9 +21,10 @@ exports.createOrder = async (req, res) => {
       })),
       totalAmount,
       status: 'pending',
-      shippingAddress,
+      shippingAddress: address,
       paymentMethod: paymentMethod || 'upi',
       paymentStatus: 'pending',
+      razorpayPaymentId // store if provided
     });
     await order.save();
     res.status(201).json({ success: true, order });
@@ -41,4 +42,4 @@ exports.getAllOrders = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch orders' });
   }
-}; 
+};

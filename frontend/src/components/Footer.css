@@ -1,0 +1,30 @@
+.footer-title-with-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.footer-store-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid #eee;
+}
+
+.footer-store-name {
+  font-weight: 700;
+  font-size: 1.08rem;
+  color: #b4884d;
+  letter-spacing: 0.5px;
+  font-family: 'Playfair Display', serif;
+}
+
+.footer-title.small-title {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

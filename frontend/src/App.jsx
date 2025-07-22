@@ -10,6 +10,8 @@ import AddProduct from './pages/AddProduct';
 import CategoryManagement from './pages/CategoryManagement';
 import EditProduct from './pages/EditProduct';
 import Review from './pages/Review';
+import CompleteProfile from './pages/CompleteProfile';
+import Footer from './components/Footer';
 
 function App() {
   return (
@@ -26,7 +28,10 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/review" element={<Review />} />
+        <Route path="/complete-profile" element={<CompleteProfile />} />
+        <Route path="*" element={<div style={{display:'none'}} />} />
       </Routes>
+      <Footer />
     </Router>
   );
 }

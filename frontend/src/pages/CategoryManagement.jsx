@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './CategoryManagement.css';
 
 const CategoryManagement = () => {
-  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -112,53 +110,12 @@ const CategoryManagement = () => {
     <div className="category-management-container">
       <div className="category-header">
         <h2>Category Management</h2>
-        <button
-          className="back-button"
-          onClick={() => navigate('/admin')}
-        >
-          Back to Dashboard
-        </button>
       </div>
-
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
-
       <div className="category-content">
-        <div className="category-list">
-          <h3>Existing Categories</h3>
-          {categories.map(category => (
-            <div key={category._id} className="category-card">
-              <div className="category-info">
-                <h4>{category.name}</h4>
-                <p>{category.description}</p>
-                <div className="materials-list">
-                  {category.materials.map(material => (
-                    <span key={material} className="material-tag">
-                      {material}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="category-actions">
-                <button
-                  className="edit-button"
-                  onClick={() => handleEdit(category)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="delete-button"
-                  onClick={() => handleDelete(category._id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
         <div className="category-form">
           <h3>{editingCategory ? 'Edit Category' : 'Add New Category'}</h3>
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Category Name</label>
@@ -241,9 +198,47 @@ const CategoryManagement = () => {
             </div>
           </form>
         </div>
+        <div className="category-list">
+          <h3>Existing Categories</h3>
+          {/* Remove A-Z label and grouping */}
+          {categories.map(category => (
+            <div key={category._id} className="category-card stretch-card">
+              <div className="category-info">
+                <div>
+                  <span className="category-label">Category:</span>
+                  <span className="category-value">{category.name}</span>
+                </div>
+                <div>
+                  <span className="materials-label">Materials:</span>
+                  <span className="materials-list">
+                    {category.materials.map(material => (
+                      <span key={material} className="material-tag">
+                        {material}
+                      </span>
+                    ))}
+                  </span>
+                </div>
+              </div>
+              <div className="category-actions">
+                <button
+                  className="edit-button"
+                  onClick={() => handleEdit(category)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="delete-button"
+                  onClick={() => handleDelete(category._id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
-export default CategoryManagement; 
+export default CategoryManagement;

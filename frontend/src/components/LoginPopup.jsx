@@ -3,7 +3,7 @@ import './LoginPopup.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const LoginPopup = ({ onClose }) => {
+const LoginPopup = ({ onClose, onLoginSuccess, redirectTo }) => {
   const [activeTab, setActiveTab] = useState('user');
   const [isSignup, setIsSignup] = useState(false);
   const [name, setName] = useState('');
@@ -24,13 +24,15 @@ const LoginPopup = ({ onClose }) => {
       alert('Admin logged in!');
       localStorage.setItem('isAdmin', true);
       onClose();
+      if (onLoginSuccess) onLoginSuccess();
       navigate('/admin');
     } else {
       alert('Invalid Admin credentials');
     }
   };
 
-  const handleUserLogin = async () => {
+  const handleUserLogin = async (e) => {
+    e.preventDefault();
     try {
       const { data } = await axios.post('http://localhost:5000/api/auth/login', {
         email,
@@ -40,7 +42,7 @@ const LoginPopup = ({ onClose }) => {
       localStorage.setItem('user', JSON.stringify(data.user));
       alert('Login successful!');
       onClose();
-      navigate('/');
+      if (onLoginSuccess) onLoginSuccess(redirectTo);
     } catch (err) {
       alert(err.response?.data?.error || 'Login failed');
     }
@@ -57,6 +59,10 @@ const LoginPopup = ({ onClose }) => {
       localStorage.setItem('user', JSON.stringify(data.user));
       alert('Signup successful!');
       setIsSignup(false);
+      // Redirect to complete profile if address missing
+      if (!data.user.address || !data.user.address.pincode) {
+        navigate('/complete-profile');
+      }
     } catch (err) {
       alert(err.response?.data?.error || 'Signup failed');
     }
