@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './CategoryManagement.css';
+import { API_URL } from '../config';
 
 const CategoryManagement = () => {
   const [categories, setCategories] = useState([]);
@@ -21,7 +22,7 @@ const CategoryManagement = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('/api/categories');
+      const response = await axios.get(`${API_URL}/api/categories`);
       setCategories(response.data);
     } catch (err) {
       setError('Failed to fetch categories');
@@ -66,7 +67,7 @@ const CategoryManagement = () => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`/api/categories/${categoryId}`, {
+        await axios.delete(`${API_URL}/api/categories/${categoryId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSuccess('Category deleted successfully');
@@ -86,12 +87,12 @@ const CategoryManagement = () => {
     try {
       const token = localStorage.getItem('token');
       if (editingCategory) {
-        await axios.put(`/api/categories/${editingCategory}`, formData, {
+        await axios.put(`${API_URL}/api/categories/${editingCategory}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSuccess('Category updated successfully');
       } else {
-        await axios.post('/api/categories', formData, {
+        await axios.post(`${API_URL}/api/categories`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setSuccess('Category added successfully');

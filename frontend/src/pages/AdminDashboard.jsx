@@ -7,6 +7,7 @@ import CategoryManagement from './CategoryManagement';
 import AdminDashboardOrder from './AdminDashboardOrder';
 import { useNavigate } from 'react-router-dom';
 import logoImg from '../assets/logo.png';
+import { API_URL } from '../config';
 
 const AdminDashboard = () => {
   const [activeMenu, setActiveMenu] = useState('products');
@@ -31,7 +32,7 @@ const AdminDashboard = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(`${API_URL}/api/products`);
       // Accept both {products: [...]} and [...] as response
       if (Array.isArray(response.data)) {
         setProducts(response.data);
@@ -51,7 +52,7 @@ const AdminDashboard = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/categories');
+      const response = await axios.get(`${API_URL}/api/categories`);
       setCategories(response.data);
     } catch (err) {
       setError('Failed to fetch categories');
@@ -64,7 +65,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/orders', {
+      const response = await axios.get(`${API_URL}/api/orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(response.data);
@@ -78,7 +79,7 @@ const AdminDashboard = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/products/${id}`);
+        await axios.delete(`${API_URL}/api/products/${id}`);
         fetchProducts();
       } catch (err) {
         console.error('Delete error:', err.response?.data || err.message); // Add this for debugging

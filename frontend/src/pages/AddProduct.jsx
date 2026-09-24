@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AddProduct.css';
+import { API_URL } from '../config';
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ const AddProduct = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('/api/categories');
+      const response = await axios.get(`${API_URL}/api/categories`);
       setCategories(response.data);
     } catch (err) {
       setError('Failed to fetch categories');
@@ -173,7 +174,7 @@ const AddProduct = () => {
         }))
       };
 
-      await axios.post('/api/products', productData);
+      await axios.post(`${API_URL}/api/products`, productData);
       setSuccess('Product added successfully');
       setTimeout(() => navigate('/admin'), 2000);
     } catch (err) {

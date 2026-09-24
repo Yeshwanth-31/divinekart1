@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 
 const CompleteProfile = () => {
   const [form, setForm] = useState({
@@ -67,7 +68,7 @@ const CompleteProfile = () => {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:5000/api/users/profile', {
+      await axios.put(`${API_URL}/api/users/profile`, {
         address: form
       }, {
         headers: { Authorization: `Bearer ${token}` }

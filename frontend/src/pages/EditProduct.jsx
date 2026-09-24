@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AddProduct.css'; // Use the same CSS as AddProduct for consistency
+import { API_URL } from '../config';
 
 const EditProduct = ({ productId, onCancel, onSuccess }) => {
   const { id: routeId } = useParams();
@@ -36,9 +37,9 @@ const EditProduct = ({ productId, onCancel, onSuccess }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const productRes = await axios.get(`/api/products/${id}`);
+        const productRes = await axios.get(`${API_URL}/api/products/${id}`);
         const product = productRes.data;
-        const categoriesRes = await axios.get('/api/categories');
+        const categoriesRes = await axios.get(`${API_URL}/api/categories`);
         setCategories(categoriesRes.data);
 
         setFormData({
@@ -206,7 +207,7 @@ const EditProduct = ({ productId, onCancel, onSuccess }) => {
           showInStore: v.showInStore !== false
         }))
       };
-      await axios.put(`/api/products/${id}`, productData);
+      await axios.put(`${API_URL}/api/products/${id}`, productData);
       setSuccess('Product updated successfully');
       if (onSuccess) {
         onSuccess();
@@ -229,7 +230,7 @@ const EditProduct = ({ productId, onCancel, onSuccess }) => {
     if (!window.confirm('Are you sure you want to delete this variant?')) return;
     try {
       setLoading(true);
-      await axios.delete(`/api/products/${id}/variant/${variantIdx}`);
+      await axios.delete(`${API_URL}/api/products/${id}/variant/${variantIdx}`);
       setVariants(prev => prev.filter((_, i) => i !== variantIdx));
       setSuccess('Variant deleted successfully');
       setTimeout(() => setSuccess(''), 2000);

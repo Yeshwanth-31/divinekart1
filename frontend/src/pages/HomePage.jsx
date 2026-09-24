@@ -18,6 +18,7 @@ import customise7Img from '../assets/customise7.jpg';
 import customise8Img from '../assets/customise8.jpg';
 import customise9Img from '../assets/customise9.jpg';
 import MiniCart from '../components/MiniCart';
+import { API_URL } from '../config';
 
 const countryOptions = [
   { value: 'India', label: 'India' },
@@ -114,7 +115,7 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products')
+    axios.get(`${API_URL}/api/products`)
       .then(res => {
         // FIX: Use res.data.products if backend returns { products, total }
         const arr = Array.isArray(res.data) ? res.data : res.data.products;
@@ -214,7 +215,7 @@ const HomePage = () => {
 
   // Fetch categories from backend on load
   useEffect(() => {
-    axios.get('http://localhost:5000/api/categories')
+    axios.get(`${API_URL}/api/categories`)
       .then(res => {
         setCategories(['All', ...res.data.map(cat => cat.name)]);
         // Aggregate all unique materials for "All" category
@@ -232,7 +233,7 @@ const HomePage = () => {
   // Fetch materials for selected category (or all)
   useEffect(() => {
     if (filter !== 'All') {
-      axios.get(`http://localhost:5000/api/categories/name/${encodeURIComponent(filter)}`)
+      axios.get(`${API_URL}/api/categories/name/${encodeURIComponent(filter)}`)
         .then(res => setCategoryMaterials(res.data.materials || []))
         .catch(() => setCategoryMaterials([]));
     } else {
@@ -376,7 +377,7 @@ const HomePage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:5000/api/cart/add',
+        `${API_URL}/api/cart/add`,
         { productId: product._id, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -413,7 +414,7 @@ const HomePage = () => {
       }
 
       const response = await axios.post(
-        'http://localhost:5000/api/users/update-location',
+        `${API_URL}/api/users/update-location`,
         { location },
         { headers: { Authorization: `Bearer ${token}` } }
       );

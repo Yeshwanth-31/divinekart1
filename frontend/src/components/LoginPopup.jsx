@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './LoginPopup.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config';
 
 const LoginPopup = ({ onClose, onLoginSuccess, redirectTo }) => {
   const [activeTab, setActiveTab] = useState('user');
@@ -34,7 +35,7 @@ const LoginPopup = ({ onClose, onLoginSuccess, redirectTo }) => {
   const handleUserLogin = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/login', {
+      const { data } = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password: pass,
       });
@@ -50,7 +51,7 @@ const LoginPopup = ({ onClose, onLoginSuccess, redirectTo }) => {
 
   const handleUserSignup = async () => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/signup', {
+      const { data } = await axios.post(`${API_URL}/api/auth/signup`, {
         name,
         email,
         password: pass,

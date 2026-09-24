@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaUser, FaShoppingCart, FaCheckCircle, FaClock, FaRupeeSign, FaEdit, FaSearch, FaMapMarkerAlt } from 'react-icons/fa';
 import './Profile.css';
+import { API_URL } from '../config';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -27,7 +28,7 @@ const Profile = () => {
           setLoading(false);
           return;
         }
-        const response = await axios.get('http://localhost:5000/api/users/profile', {
+        const response = await axios.get(`${API_URL}/api/users/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(response.data);
@@ -113,7 +114,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        'http://localhost:5000/api/users/profile',
+        `${API_URL}/api/users/profile`,
         { name: editData.name, email: editData.email, password: editData.password, address: editData.location },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -138,7 +139,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        'http://localhost:5000/api/users/profile',
+        `${API_URL}/api/users/profile`,
         { address: address },
         { headers: { Authorization: `Bearer ${token}` } }
       );

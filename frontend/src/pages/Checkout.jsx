@@ -8,6 +8,7 @@ import axios from 'axios';
 import LoginPopup from '../components/LoginPopup';
 import logoImg from '../assets/logo.png';
 import { FaUserCircle } from 'react-icons/fa';
+import { API_URL } from '../config';
 
 const Checkout = () => {
   const cartItems = useSelector((state) => state.cart.cartItems);
@@ -36,7 +37,7 @@ const Checkout = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      axios.get('http://localhost:5000/api/users/profile', { headers: { Authorization: `Bearer ${token}` } })
+      axios.get(`${API_URL}/api/users/profile`, { headers: { Authorization: `Bearer ${token}` } })
         .then(res => {
           const user = res.data.user || {};
           setEmail(user.email || '');
@@ -90,7 +91,7 @@ const Checkout = () => {
     try {
       const token = localStorage.getItem('token');
       // 1. Create the order
-      const orderRes = await fetch('http://localhost:5000/api/orders', {
+      const orderRes = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,7 +108,7 @@ const Checkout = () => {
       });
       const orderData = await orderRes.json();
       if (!orderData.success) throw new Error(orderData.message || 'Order failed');
-      await axios.post('http://localhost:5000/api/cart/clear', {}, {
+      await axios.post(`${API_URL}/api/cart/clear`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       dispatch(clearCart());
@@ -126,7 +127,7 @@ const Checkout = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:5000/api/payment/create-order',
+        `${API_URL}/api/payment/create-order`,
         { amount: totalPrice },
         {
           headers: {

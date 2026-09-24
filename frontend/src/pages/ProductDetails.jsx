@@ -8,6 +8,7 @@ import { FaUserCircle, FaSearch, FaTimes } from 'react-icons/fa';
 import logoImg from '../assets/logo.png';
 import LoginPopup from '../components/LoginPopup';
 import MiniCart from '../components/MiniCart'; // Add this import
+import { API_URL } from '../config';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -31,7 +32,7 @@ const ProductDetails = () => {
   // Fetch product
   useEffect(() => {
     setLoading(true);
-    axios.get(`/api/products/${id}`)
+    axios.get(`${API_URL}/api/products/${id}`)
       .then(res => {
         setProduct(res.data);
         setLoading(false);
@@ -68,7 +69,7 @@ const ProductDetails = () => {
   // Fetch related products
   useEffect(() => {
     if (!product?._id) return;
-    axios.get(`/api/products/${product._id}/related`)
+    axios.get(`${API_URL}/api/products/${product._id}/related`)
       .then(res => setRelatedProducts(res.data || []))
       .catch(() => setRelatedProducts([]));
   }, [product?._id]);

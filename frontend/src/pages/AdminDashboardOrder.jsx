@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminDashboardOrder.css';
+import { API_URL } from '../config';
 
 const AdminDashboardOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -8,7 +9,7 @@ const AdminDashboardOrder = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    axios.get('http://localhost:5000/api/orders', {
+    axios.get(`${API_URL}/api/orders`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setOrders(res.data))
@@ -35,7 +36,7 @@ const AdminDashboardOrder = () => {
     );
     // You can make an axios.put call here to update delivery in backend
     // Example:
-    // axios.put(`http://localhost:5000/api/orders/${orderId}/deliver`, { delivered: true }, { headers: { Authorization: `Bearer ${token}` } })
+    // axios.put(`${API_URL}/api/orders/${orderId}/deliver`, { delivered: true }, { headers: { Authorization: `Bearer ${token}` } })
   };
 
   return (
